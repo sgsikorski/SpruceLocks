@@ -1,48 +1,32 @@
-import bs4
-import requests
-from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
 import RPi.GPIO as gpio
+import time
+sidedoorStatus = False
 
-url = 'https://sgsikorski.github.io/SpruceLocks'
-doc = requests.get(url)
+#cardinfo = input()
+# switch like statement based on card number didctating which person
+#if cardinfo == '':
+    # unlock the door
+    #changeLockState()
+print(gpio.RPI_INFO)
+    
+gpio.setmode(gpio.BOARD)
+gpio.setwarnings(False)
 
-gpio.setup(17, gpio.out)
-gpio.setup(18, gpio.out)
-gpio.setup(19, gpio.out)
-gpio.setup(20, gpio.out)
-gpio.setup(21, gpio.out)
-gpio.setup(22, gpio.out)
-gpio.setup(23, gpio.out)
-gpio.setup(24, gpio.out)
-gpio.setup(25, gpio.out)
-gpio.setup(26, gpio.out)
+gpio.setup(3, gpio.OUT)
+gpio.setup(5, gpio.OUT)
+gpio.setup(7, gpio.OUT)
+pwm = gpio.PWM(7, 100)
+pwm.start(0)
 
-driver = webdriver.Chrome("C:\\Users\\Scott Sikorski\\CS.Workspace\\SideProjects\\chromedriver")
-driver.get(url)
+print('setup')
+time.sleep(2)
 
-action = ActionChains(driver)
-ele = driver.find_element_by_id("status")
-action.click()
-
-def GPIOoutput(pin1, pin2, direction):
-    dir1 = True if direction == 'lock' else False
-    gpio.output(pin1, dir1)
-    gpio.output(pin2, False if dir1==True else True)
-
-for line in (bs4.BeautifulSoup(doc.text, "html.parser")):
-    if (line.contains('</p>')):
-        if (line.contains('u1')):
-            GPIOoutput(17,18,'unlock') if line.contains('Un') else GPIOoutput(17,18,'lock')
-        elif (line.contains('u2')):
-            GPIOoutput(19,20,'unlock') if line.contains('Un') else GPIOoutput(19,20,'lock')
-        elif (line.contains('u3')):
-            GPIOoutput(21,22,'unlock') if line.contains('Un') else GPIOoutput(21,22,'lock')
-        elif (line.contains('u4')):
-            GPIOoutput(23,24,'unlock') if line.contains('Un') else GPIOoutput(23,24,'lock')
-        elif (line.contains('u4')):
-            GPIOoutput(25,26,'unlock') if line.contains('Un') else GPIOoutput(25,26,'lock')
-
-
-
-
+gpio.output(3, True)
+gpio.output(5, False)
+pwm.ChangeDutyCycle(25)
+gpio.output(7, True)
+print(gpio.input(7))
+time.sleep(5)
+gpio.output(7, False)
+print('hello')
+gpio.cleanup()

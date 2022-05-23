@@ -6,13 +6,16 @@ from spotipy.oauth2 import SpotifyOAuth
 
 SCOPE = "user-modify-playback-state"
 user = True
-client_id = ''
-client_secret = ''
+redirect_uri = "http://localhost:8080"
+client_id = 'bc81e9a896f4426a9db6b2511b29ee74'
+client_secret = '8effc084853441f0ac647024edace2c4'
 tracks = ['', '', '', '', '', '', '', '', '', '']
 songUris = ['', '', '', '', '', '', '', '', '', '']
 
-token = util.prompt_for_user_token("basketballer820", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
-token2 = util.prompt_for_user_token("sk", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
+#token = util.prompt_for_user_token("basketballer820", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
+#token2 = util.prompt_for_user_token("sk", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
+def exit(event):
+    root.destroy()
 
 def onDownstairs(fr, fr2):
     user = True
@@ -51,7 +54,8 @@ def handleRequest(songTit, fr3):
     return
 
 def addToQ(pos, fr3, fr):
-    sp = spotipy.Spotify(auth=token) if user==True else spotipy.Spotify(auth=token2)
+    auth_manager = SpotifyOAuth(scope=SCOPE, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
+    sp = spotipy.Spotify(auth_manager=auth_manager)
     sp.add_to_queue(songUris[pos])
     fr3.pack_forget()
     fr.pack()
@@ -59,13 +63,18 @@ def addToQ(pos, fr3, fr):
 
 root = tk.Tk()
 root.geometry("1024x600")
+root.attributes('-fullscreen', True)
+root.bind('<Return>', exit)
 tk.Label(text="Request Songs").pack()
 
 fr = tk.Frame(root, highlightbackground='black', highlightthickness=5)
 fr2 = tk.Frame(root, highlightbackground='black', highlightthickness=5)
 fr3 = tk.Frame(root, highlightbackground='black', highlightthickness=5)
-usBut = tk.Button(fr, text="Upstairs", height = 10, width = 100, command=lambda: onUpstairs(fr, fr2), font=('Georgia 20')).pack()
-dsBut = tk.Button(fr, text="Downstairs", height = 10, width = 100, command=lambda: onDownstairs(fr, fr2), font=('Georgia 20')).pack()
+usBut = tk.Button(fr, text="Upstairs", height = 10, width = 100, command=lambda: onUpstairs(fr, fr2), font=('Georgia 20'))
+# dsBut = tk.Button(fr, text="Downstairs", height = 10, width = 100, command=lambda: onDownstairs(fr, fr2), font=('Georgia 20')).pack()
+usBut.bind('<Escape>', exit)
+usBut.focus()
+usBut.pack()
 fr.pack()
 
 query = tk.Entry(fr2, text="Enter the song title", font=('Georgia 48'))
@@ -77,14 +86,14 @@ fr2.pack_forget()
 tk.Label(fr3, text='Pick by which artists').pack()
 s1 = tk.Button(fr3, text=tracks[0], command=lambda: addToQ(0, fr3, fr)).pack()
 s2 = tk.Button(fr3, text=tracks[1], command=lambda: addToQ(1, fr3, fr)).pack()
-s3 = tk.Button(fr3, text=tracks[2], command=lambda: addToQ(2, fr3, fr)).pack()
-s4 = tk.Button(fr3, text=tracks[3], command=lambda: addToQ(3, fr3, fr)).pack()
-s5 = tk.Button(fr3, text=tracks[4], command=lambda: addToQ(4, fr3, fr)).pack()
-s6 = tk.Button(fr3, text=tracks[5], command=lambda: addToQ(5, fr3, fr)).pack()
-s7 = tk.Button(fr3, text=tracks[6], command=lambda: addToQ(6, fr3, fr)).pack()
-s8 = tk.Button(fr3, text=tracks[7], command=lambda: addToQ(7, fr3, fr)).pack()
-s9 = tk.Button(fr3, text=tracks[8], command=lambda: addToQ(8, fr3, fr)).pack()
-s10 = tk.Button(fr3, text=tracks[9], command=lambda: addToQ(9, fr3, fr)).pack()
+# s3 = tk.Button(fr3, text=tracks[2], command=lambda: addToQ(2, fr3, fr)).pack()
+# s4 = tk.Button(fr3, text=tracks[3], command=lambda: addToQ(3, fr3, fr)).pack()
+# s5 = tk.Button(fr3, text=tracks[4], command=lambda: addToQ(4, fr3, fr)).pack()
+# s6 = tk.Button(fr3, text=tracks[5], command=lambda: addToQ(5, fr3, fr)).pack()
+# s7 = tk.Button(fr3, text=tracks[6], command=lambda: addToQ(6, fr3, fr)).pack()
+# s8 = tk.Button(fr3, text=tracks[7], command=lambda: addToQ(7, fr3, fr)).pack()
+# s9 = tk.Button(fr3, text=tracks[8], command=lambda: addToQ(8, fr3, fr)).pack()
+# s10 = tk.Button(fr3, text=tracks[9], command=lambda: addToQ(9, fr3, fr)).pack()
 fr3.pack()
 fr3.pack_forget()
 

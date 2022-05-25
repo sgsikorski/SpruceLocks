@@ -1,32 +1,40 @@
-import RPi.GPIO as gpio
+#from gpiozero import Servo
 import time
 sidedoorStatus = False
+# Servo(pin number)
+servo = Servo(25)
 
-#cardinfo = input()
-# switch like statement based on card number didctating which person
-#if cardinfo == '':
-    # unlock the door
-    #changeLockState()
-print(gpio.RPI_INFO)
-    
-gpio.setmode(gpio.BOARD)
-gpio.setwarnings(False)
+validUsers = dict()
 
-gpio.setup(3, gpio.OUT)
-gpio.setup(5, gpio.OUT)
-gpio.setup(7, gpio.OUT)
-pwm = gpio.PWM(7, 100)
-pwm.start(0)
+def addUser(card, name=''):
+    f = open("/users", "a")
+    f.write(f'{card}: {name}')
+    validUsers[card] = name
 
-print('setup')
-time.sleep(2)
+def switchLock():
+    if sidedoorStatus: 
+        servo.min()
+    else: 
+        servo.mid()
 
-gpio.output(3, True)
-gpio.output(5, False)
-pwm.ChangeDutyCycle(25)
-gpio.output(7, True)
-print(gpio.input(7))
-time.sleep(5)
-gpio.output(7, False)
-print('hello')
-gpio.cleanup()
+def popUserDict():
+    f = open("/users", "r")
+    for line in f:
+        stmts = line.split(':')
+        validUsers[stmts[0]] = stmts[1].lstrip().rstrip()
+
+while(True):
+    cardInfo = input()
+    if cardInfo == '': continue
+    if cardInfo == 'override':
+        newCard = input()
+        addUser(newCard)
+    if validUsers.keys() == []:
+        popUserDict()
+    if cardInfo in validUsers.keys():
+        switchLock()
+
+# 0, 180, 90, respectively
+servo.min()
+servo.max()
+servo.mid()

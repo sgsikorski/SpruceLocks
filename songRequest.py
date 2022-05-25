@@ -3,17 +3,16 @@ import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
+import time
 
 SCOPE = "user-modify-playback-state"
 user = True
 redirect_uri = "http://localhost:8080"
-client_id = 'bc81e9a896f4426a9db6b2511b29ee74'
-client_secret = '8effc084853441f0ac647024edace2c4'
+client_id = ''
+client_secret = ''
 tracks = ['', '', '', '', '', '', '', '', '', '']
 songUris = ['', '', '', '', '', '', '', '', '', '']
 
-#token = util.prompt_for_user_token("basketballer820", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
-#token2 = util.prompt_for_user_token("sk", client_id=client_id, client_secret=client_secret, scope=SCOPE, redirect_uri="http://localhost:8080")
 def exit(event):
     root.destroy()
 
@@ -29,10 +28,10 @@ def onUpstairs(fr, fr2):
     fr2.pack()
     return
 
-def submitRequest(fr2, fr3, song):
+def submitRequest(fr2, fr3, lFrame, song):
+    handleRequest(song, fr3)
     fr2.pack_forget()
     fr3.pack()
-    handleRequest(song, fr3)
     return
 
 def handleRequest(songTit, fr3):
@@ -49,43 +48,48 @@ def handleRequest(songTit, fr3):
         num+=1
     num = 0
     for child in fr3.children.values():
+        if isinstance(child, tk.Label): continue
         child['text'] = tracks[num]
         num+=1
     return
 
-def addToQ(pos, fr3, fr):
+def addToQ(pos, fr3, fr, lFrame):
+    fr3.pack_forget()
     auth_manager = SpotifyOAuth(scope=SCOPE, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
     sp = spotipy.Spotify(auth_manager=auth_manager)
     sp.add_to_queue(songUris[pos])
-    fr3.pack_forget()
     fr.pack()
     return 
 
 root = tk.Tk()
 root.geometry("1024x600")
-root.attributes('-fullscreen', True)
-root.bind('<Return>', exit)
-tk.Label(text="Request Songs").pack()
+# root.attributes('-fullscreen', True)
+root.bind('<Escape>', exit)
+tk.Label(text="Request Songs", font=('Georgia 24')).pack()
+tk.Label(text="Please be patient. If you pressed the button, it worked", font=('Georgia 24')).pack()
 
 fr = tk.Frame(root, highlightbackground='black', highlightthickness=5)
 fr2 = tk.Frame(root, highlightbackground='black', highlightthickness=5)
+lFrame = tk.Frame(root, highlightbackground='black', highlightthickness=5)
 fr3 = tk.Frame(root, highlightbackground='black', highlightthickness=5)
 usBut = tk.Button(fr, text="Upstairs", height = 10, width = 100, command=lambda: onUpstairs(fr, fr2), font=('Georgia 20'))
 # dsBut = tk.Button(fr, text="Downstairs", height = 10, width = 100, command=lambda: onDownstairs(fr, fr2), font=('Georgia 20')).pack()
-usBut.bind('<Escape>', exit)
-usBut.focus()
 usBut.pack()
 fr.pack()
 
 query = tk.Entry(fr2, text="Enter the song title", font=('Georgia 48'))
 query.pack()
-submitBut = tk.Button(fr2, text="Submit", command=lambda: submitRequest(fr2, fr3, query.get()), font=('Georgia 20')).pack()
+submitBut = tk.Button(fr2, text="Submit", command=lambda: submitRequest(fr2, fr3, lFrame, query.get()), font=('Georgia 20')).pack()
 fr2.pack()
 fr2.pack_forget()
 
-tk.Label(fr3, text='Pick by which artists').pack()
-s1 = tk.Button(fr3, text=tracks[0], command=lambda: addToQ(0, fr3, fr)).pack()
-s2 = tk.Button(fr3, text=tracks[1], command=lambda: addToQ(1, fr3, fr)).pack()
+tk.Label(lFrame, text='Loading. Fucking wait.', font=('Georgia 48')).pack()
+lFrame.pack()
+lFrame.pack_forget()
+
+tk.Label(fr3, text='Pick by which artists', font=('Georgia 40')).pack()
+s1 = tk.Button(fr3, text=tracks[0], command=lambda: addToQ(0, fr3, fr, lFrame)).pack()
+s2 = tk.Button(fr3, text=tracks[1], command=lambda: addToQ(1, fr3, fr, lFrame)).pack()
 # s3 = tk.Button(fr3, text=tracks[2], command=lambda: addToQ(2, fr3, fr)).pack()
 # s4 = tk.Button(fr3, text=tracks[3], command=lambda: addToQ(3, fr3, fr)).pack()
 # s5 = tk.Button(fr3, text=tracks[4], command=lambda: addToQ(4, fr3, fr)).pack()
